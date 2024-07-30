@@ -1,46 +1,43 @@
-function saveFile() {
-  let data = document.querySelector("textarea");
-  let name = document.getElementById("fileName").value;
-  let type = document.getElementById("saveAs").value;
-  let blob;
-
-  if (data.value.trim() === "" || name.trim() === "") {
+async function saveFile() {
+  const data = document.querySelector("textarea").value;
+  const name = document.getElementById("fileName").value.trim();
+  const type = document.getElementById("saveAs").value;
+  
+  if (data.trim() === "" || name === "") {
     alert("Please enter content in both the text area and file name field.");
     return;
   }
 
+  let blob;
+
   switch (type) {
     case "text/plain":
-      blob = new Blob([data.value], { type: type });
-      break;
     case "text/html":
-      blob = new Blob([data.value], { type: type });
-      break;
     case "text/css":
-      blob = new Blob([data.value], { type: type });
-      break;
     case "application/javascript":
-      blob = new Blob([data.value], { type: type });
-      break;
-    case "application/pdf":
-      blob = new Blob([data.value], { type: type });
-      break;
-    case "application/vnd.ms-powerpoint":
-      blob = new Blob([data.value], { type: type });
-      break;
-    case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-      blob = new Blob([data.value], { type: type });
-      break;
     case "text/csv":
-      blob = new Blob([data.value], { type: type });
+      blob = new Blob([data], { type: type });
       break;
+      
+    case "application/pdf":
+      const { jsPDF } = window.jspdf;
+      const pdfDoc = new jsPDF();
+      pdfDoc.text(data, 10, 10);
+      blob = pdfDoc.output("blob");
+      break;
+      
+    case "application/vnd.ms-powerpoint":
+      // Simple placeholder for unsupported PPT generation
+      blob = new Blob([data], { type: "application/vnd.ms-powerpoint" });
+      break;
+
     default:
-      console.log("Unsupported file format.");
+      alert("Unsupported file format.");
       return;
   }
 
-  let url = URL.createObjectURL(blob);
-  let link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
   link.download = name;
   link.href = url;
   link.click();
